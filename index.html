@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>挑好了 — AI 帮你选，不纠结</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f6f5f0;--surface:#fff;--surface2:#f0ede6;--border:#e2ddd4;--border2:#ccc7b8;
+  --text:#1a1916;--text2:#6b6760;--text3:#a09c95;
+  --accent:#2a6ef5;--accent-bg:#e8f0fe;--accent-text:#1a56db;
+  --success-bg:#e6f4ea;--success-text:#1e7e34;
+  --danger-bg:#fce8e6;--danger-text:#c5221f;
+  --r:10px;--rl:14px;--rp:99px;
+}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-mark{width:32px;height:32px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logo-name{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+.logo-tag{font-size:12px;color:var(--text3);font-weight:400;margin-left:2px}
+.header-right{font-size:13px;color:var(--text3)}
+.page{max-width:800px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+.hero{text-align:center;margin-bottom:2rem}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent-text);background:var(--accent-bg);padding:4px 12px;border-radius:99px;margin-bottom:14px}
+.hero h1{font-size:34px;font-weight:700;letter-spacing:-0.8px;line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:normal;border-bottom:3px solid var(--text);padding-bottom:1px}
+.hero p{font-size:15px;color:var(--text2);max-width:420px;margin:0 auto}
+.cats{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+.cat-btn{display:flex;align-items:center;gap:5px;font-family:inherit;font-size:13px;padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cat-btn i{font-size:15px}
+.cat-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.cat-btn:hover:not(.active){background:var(--surface2);border-color:var(--border2);color:var(--text)}
+.search-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.presets-label{font-size:12px;color:var(--text3);margin-bottom:8px}
+.preset-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.preset-btn{font-family:inherit;font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;transition:all .12s}
+.preset-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.input-row{display:flex;gap:8px;margin-bottom:1rem}
+.input-row input{flex:1;font-family:inherit;font-size:15px;padding:0 14px;height:44px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.input-row input:focus{border-color:var(--text)}
+.input-row input::placeholder{color:var(--text3)}
+.search-btn{height:44px;padding:0 22px;border-radius:var(--r);border:none;background:var(--text);color:#fff;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:opacity .15s,transform .1s}
+.search-btn:hover{opacity:.85}
+.search-btn:active{transform:scale(.97)}
+.search-btn:disabled{opacity:.45;cursor:not-allowed}
+.sort-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.sort-label{font-size:13px;color:var(--text3)}
+.sort-chip{font-family:inherit;font-size:13px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s}
+.sort-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+.skeleton-wrap{display:none}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.sk{border-radius:6px;background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:600px 100%;animation:shimmer 1.4s infinite}
+.sk-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:12px}
+.sk-line{height:14px;margin-bottom:10px}
+.sk-loading-msg{font-size:14px;color:var(--text2);text-align:center;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.sk-dot{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:pulse .8s ease-in-out infinite}
+.sk-dot:nth-child(2){animation-delay:.15s}
+.sk-dot:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.results-area{display:none}
+.summary-bar{background:var(--surface2);border-radius:var(--r);padding:12px 16px;font-size:14px;color:var(--text2);margin-bottom:1.25rem;line-height:1.7}
+.summary-bar strong{color:var(--text);font-weight:500}
+.results-meta{font-size:13px;color:var(--text3);margin-bottom:14px}
+.results-meta strong{color:var(--text)}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem 1.5rem;margin-bottom:12px;position:relative;transition:border-color .15s,box-shadow .15s;opacity:0;transform:translateY(8px);animation:fadeUp .3s forwards}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+.product-card:hover{border-color:var(--border2);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.product-card.top{border:2px solid var(--accent)}
+.rank-badge{position:absolute;top:1.25rem;right:1.5rem;font-size:12px;font-weight:500;padding:3px 10px;border-radius:var(--r)}
+.badge-1{background:var(--accent-bg);color:var(--accent-text)}
+.badge-other{background:var(--surface2);color:var(--text2)}
+.card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding-right:80px}
+.card-icon{width:44px;height:44px;border-radius:var(--r);background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon i{font-size:22px;color:var(--text2)}
+.card-name{font-size:16px;font-weight:500;color:var(--text);margin-bottom:2px}
+.card-cat{font-size:13px;color:var(--text3)}
+.card-price{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.card-price small{font-size:13px;font-weight:400;color:var(--text3);margin-left:6px}
+.card-reason{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tag{font-size:12px;padding:3px 10px;border-radius:var(--r);display:flex;align-items:center;gap:4px}
+.tag i{font-size:11px}
+.tag-pro{background:var(--success-bg);color:var(--success-text)}
+.tag-con{background:var(--danger-bg);color:var(--danger-text)}
+.card-links{display:flex;gap:8px;flex-wrap:wrap}
+.link-btn{font-family:inherit;font-size:13px;color:var(--accent-text);text-decoration:none;display:flex;align-items:center;gap:4px;padding:5px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:background .12s;white-space:nowrap}
+.link-btn:hover{background:var(--accent-bg);border-color:#93b4f7}
+.error-box{background:var(--danger-bg);border-radius:var(--r);padding:1rem 1.25rem;font-size:14px;color:var(--danger-text);display:none}
+footer{text-align:center;padding:2rem 0 1rem;font-size:13px;color:var(--text3)}
+@media(max-width:520px){
+  .hero h1{font-size:26px}
+  .input-row{flex-direction:column}
+  .search-btn{width:100%;justify-content:center}
+  .page{padding:1.5rem 1rem 3rem}
+  header{padding:0 1rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-mark">
+      <svg viewBox="0 0 20 20"><circle cx="8" cy="8" r="5"/><line x1="12" y1="12" x2="17" y2="17"/><line x1="15" y1="4" x2="16" y2="3"/><line x1="17" y1="7" x2="18.5" y2="7"/><line x1="15" y1="9" x2="16" y2="10.5"/></svg>
+    </div>
+    <span class="logo-name">挑好了</span>
+    <span class="logo-tag">AI 帮你选</span>
+  </a>
+  <span class="header-right">免费 · 无广告</span>
+</header>
+
+<main class="page">
+  <div class="hero">
+    <div class="hero-badge"><i class="ti ti-sparkles" aria-hidden="true"></i> AI 驱动 · 实时分析</div>
+    <h1>选什么都不<em>纠结</em></h1>
+    <p>描述你的需求和预算，AI 帮你对比评测口碑，给出排名和购买链接。</p>
+  </div>
+
+  <div class="cats" id="cats">
+    <button class="cat-btn active" data-cat="数码电器" data-presets='["3000元以内学生笔记本，轻薄便携","拍照好的手机，预算4000元，爱拍夜景","无线降噪耳机，通勤用，预算500-1000元","家用WiFi路由器，三室一厅，200兆宽带"]' onclick="switchCat(this)"><i class="ti ti-device-laptop"></i>数码电器</button>
+    <button class="cat-btn" data-cat="家居生活" data-presets='["空气净化器，100平米客厅，有宠物","扫地机器人，预算2000元，长毛猫咪家庭","电动牙刷，敏感牙龈，预算300元以内","床垫，双人，偏硬，预算3000元"]' onclick="switchCat(this)"><i class="ti ti-sofa"></i>家居生活</button>
+    <button class="cat-btn" data-cat="运动户外" data-presets='["跑步鞋，路跑，轻量，预算600元","健身手环，心率监测，续航7天以上","瑜伽垫，家用，防滑，厚度8mm以上","折叠自行车，通勤代步，预算2000元"]' onclick="switchCat(this)"><i class="ti ti-run"></i>运动户外</button>
+    <button class="cat-btn" data-cat="美妆护肤" data-presets='["防晒霜，油皮，SPF50，轻薄不闷","口红，日常上班，显白，持久","面霜，混合肌，控油保湿，预算200元","洗发水，改善头皮屑，温和无硅油"]' onclick="switchCat(this)"><i class="ti ti-heart"></i>美妆护肤</button>
+    <button class="cat-btn" data-cat="食品饮料" data-presets='["咖啡豆，意式浓缩，中深烘，500g","坚果零食礼盒，送长辈，预算200元","蛋白粉，健身增肌，口感好，草莓味","方便速食，营养健康，一人食"]' onclick="switchCat(this)"><i class="ti ti-soup"></i>食品饮料</button>
+    <button class="cat-btn" data-cat="书籍文化" data-presets='["管理学入门书，适合职场新人","科幻小说，宏大世界观，三体风格","育儿书，0-3岁，实操性强","Python编程入门，零基础，案例丰富"]' onclick="switchCat(this)"><i class="ti ti-book"></i>书籍文化</button>
+  </div>
+
+  <div class="search-box">
+    <div class="presets-label">快速试试</div>
+    <div class="preset-btns" id="presetBtns"></div>
+    <div class="input-row">
+      <input type="text" id="queryInput" placeholder="描述你的需求、预算、使用场景…">
+      <button class="search-btn" id="searchBtn" onclick="doSearch()"><i class="ti ti-sparkles" aria-hidden="true"></i>帮我选</button>
+    </div>
+    <div class="sort-row">
+      <span class="sort-label">排序：</span>
+      <button class="sort-chip active" onclick="setSort(this,'综合推荐')">综合推荐</button>
+      <button class="sort-chip" onclick="setSort(this,'价格优先')">价格优先</button>
+      <button class="sort-chip" onclick="setSort(this,'口碑优先')">口碑优先</button>
+      <button class="sort-chip" onclick="setSort(this,'性价比')">性价比</button>
+    </div>
+  </div>
+
+  <div class="skeleton-wrap" id="skeletonWrap">
+    <div class="sk-loading-msg">
+      <div class="sk-dot"></div><div class="sk-dot"></div><div class="sk-dot"></div>
+      <span id="skMsgText">正在分析需求…</span>
+    </div>
+    <div class="sk-card"><div class="sk sk-line" style="width:60%;height:20px;margin-bottom:14px"></div><div class="sk sk-line" style="width:80%"></div><div class="sk sk-line" style="width:40%"></div><div class="sk sk-line" style="width:60%;margin-top:14px"></div></div>
+    <div class="sk-card" style="opacity:.7"><div class="sk sk-line" style="width:60%;height:20px;margin-bottom:14px"></div><div class="sk sk-line" style="width:80%"></div><div class="sk sk-line" style="width:40%"></div></div>
+    <div class="sk-card" style="opacity:.4"><div class="sk sk-line" style="width:60%;height:20px;margin-bottom:14px"></div><div class="sk sk-line" style="width:80%"></div><div class="sk sk-line" style="width:40%"></div></div>
+  </div>
+
+  <div class="results-area" id="resultsArea">
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="results-meta" id="resultsMeta"></div>
+    <div id="productList"></div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+</main>
+
+<footer>价格仅供参考，以各平台实时价格为准 &nbsp;·&nbsp; 由 Claude AI 提供支持 &nbsp;·&nbsp; 挑好了 © 2025</footer>
+
+<script>
+const MSGS=['正在分析需求…','搜索评测和口碑信息…','对比各平台数据…','生成推荐排名…'];
+let currentSort='综合推荐',currentCat='数码电器',lastResults=null,msgTimer=null;
+
+document.querySelectorAll('[data-cat]').forEach(btn=>{
+  if(btn.dataset.cat===currentCat) loadPresets(btn);
+});
+
+function switchCat(btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCat=btn.dataset.cat;
+  loadPresets(btn);
+  document.getElementById('queryInput').value='';
+}
+
+function loadPresets(btn){
+  const presets=JSON.parse(btn.dataset.presets);
+  document.getElementById('presetBtns').innerHTML=presets.slice(0,4).map(p=>
+    `<button class="preset-btn" onclick="setQuery(this.textContent)">${p}</button>`
+  ).join('');
+}
+
+function setQuery(q){
+  document.getElementById('queryInput').value=q;
+  document.getElementById('queryInput').focus();
+}
+
+function setSort(el,sort){
+  document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentSort=sort;
+  if(lastResults) renderResults(lastResults);
+}
+
+async function doSearch(){
+  const query=document.getElementById('queryInput').value.trim();
+  if(!query){document.getElementById('queryInput').focus();return;}
+
+  const btn=document.getElementById('searchBtn');
+  btn.disabled=true;
+  document.getElementById('skeletonWrap').style.display='block';
+  document.getElementById('resultsArea').style.display='none';
+  document.getElementById('errorBox').style.display='none';
+
+  let mi=0;
+  document.getElementById('skMsgText').textContent=MSGS[0];
+  clearInterval(msgTimer);
+  msgTimer=setInterval(()=>{if(mi<MSGS.length-1)document.getElementById('skMsgText').textContent=MSGS[++mi];},1800);
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1400,
+        system:`你是专业选购助手，当前品类：${currentCat}。根据用户需求推荐3款真实市场产品。排序方式：${currentSort}。只输出JSON，不要任何其他内容：{"summary":"需求分析40字内","products":[{"rank":1,"name":"品牌+名称","category":"子类别","price":"¥XXX","priceNote":"电商参考价","reason":"推荐理由35字内","pros":["优点1","优点2"],"cons":["缺点1"],"jdKeyword":"京东搜索词","tbKeyword":"淘宝搜索词","icon":"device-laptop"}]}。icon从以下选：device-laptop,device-mobile,headphones,cpu,wifi,camera,device-tablet,device-gamepad-2,sofa,shirt,heart,book,soup,run,barbell,droplet,star`,
+        messages:[{role:'user',content:`品类：${currentCat}\n需求：${query}`}]
+      })
+    });
+    clearInterval(msgTimer);
+    const data=await resp.json();
+    const text=(data.content||[]).map(i=>i.text||'').join('');
+    lastResults=JSON.parse(text.replace(/```json|```/g,'').trim());
+    document.getElementById('skeletonWrap').style.display='none';
+    renderResults(lastResults);
+  }catch(e){
+    clearInterval(msgTimer);
+    document.getElementById('skeletonWrap').style.display='none';
+    const eb=document.getElementById('errorBox');
+    eb.style.display='block';
+    eb.textContent='获取推荐失败，请检查网络或稍后重试。（'+e.message+'）';
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function renderResults(data){
+  const ra=document.getElementById('resultsArea');
+  ra.style.display='block';
+  document.getElementById('summaryBar').innerHTML=`<strong>需求分析：</strong>${data.summary}`;
+  document.getElementById('resultsMeta').innerHTML=`为你找到 <strong>${data.products.length}</strong> 款推荐 &nbsp;·&nbsp; 排序：${currentSort}`;
+
+  let prods=[...data.products];
+  if(currentSort==='价格优先') prods.sort((a,b)=>parseInt(a.price.replace(/\D/g,''))-parseInt(b.price.replace(/\D/g,'')));
+  else if(currentSort==='口碑优先') prods.sort((a,b)=>a.cons.length-b.cons.length);
+
+  document.getElementById('productList').innerHTML=prods.map((p,i)=>{
+    const isTop=i===0&&currentSort==='综合推荐';
+    const jd=`https://search.jd.com/Search?keyword=${encodeURIComponent(p.jdKeyword||p.name)}`;
+    const tb=`https://s.taobao.com/search?q=${encodeURIComponent(p.tbKeyword||p.name)}`;
+    const xhs=`https://www.xiaohongshu.com/search_result/?keyword=${encodeURIComponent(p.name+'评测')}`;
+    return `<div class="product-card${isTop?' top':''}" style="animation-delay:${i*0.08}s">
+      <span class="rank-badge ${i===0?'badge-1':'badge-other'}">${i===0?'🏆 首选':'#'+(i+1)}</span>
+      <div class="card-header">
+        <div class="card-icon"><i class="ti ti-${p.icon||'star'}" aria-hidden="true"></i></div>
+        <div><div class="card-name">${p.name}</div><div class="card-cat">${p.category||''}</div></div>
+      </div>
+      <div class="card-price">${p.price}<small>${p.priceNote||''}</small></div>
+      <div class="card-reason">${p.reason}</div>
+      <div class="tags">
+        ${p.pros.map(t=>`<span class="tag tag-pro"><i class="ti ti-check" aria-hidden="true"></i>${t}</span>`).join('')}
+        ${p.cons.map(t=>`<span class="tag tag-con"><i class="ti ti-minus" aria-hidden="true"></i>${t}</span>`).join('')}
+      </div>
+      <div class="card-links">
+        <a class="link-btn" href="${jd}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i>京东</a>
+        <a class="link-btn" href="${tb}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i>淘宝</a>
+        <a class="link-btn" href="${xhs}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i>小红书评测</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('queryInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+</script>
+</body>
+</html>
